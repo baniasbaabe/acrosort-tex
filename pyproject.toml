@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "acrosort_tex"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["baniasbaabe <banias@hotmail.de>"]
 license = "MIT"

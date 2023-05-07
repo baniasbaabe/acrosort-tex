@@ -1,5 +1,6 @@
 import argparse
 import re
+
 from rich.console import Console
 
 
@@ -61,7 +62,7 @@ def _extract_acronym_lines(
     Args:
         acronym_block_start (int): Index of Start Block of Acronyms
         acronym_block_end (int): Index of End Block of Acronyms
-        tex_lines (list): 
+        tex_lines (list):
 
     Returns:
         list: List of all lines in the .tex file
@@ -100,7 +101,7 @@ def _sort_acronyms(acronyms: dict) -> list:
         acronyms (dict): Dictionary of all acronyms
 
     Returns:
-        list: Sorted acronyms by shortform 
+        list: Sorted acronyms by shortform
     """
     return sorted(acronyms.items(), key=lambda x: x[1][0].lower())
 
@@ -186,4 +187,6 @@ def main():
     _write_file(args.output_file, tex_lines)
 
     console = Console()
-    console.print(f"[bold green]Successfully sorted acronyms and wrote to {args.output_file} [/bold green]")
+    console.print(
+        f"[bold green]Successfully sorted acronyms and wrote to {args.output_file} [/bold green]"
+    )

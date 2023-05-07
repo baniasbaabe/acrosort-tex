@@ -128,7 +128,7 @@ def _replace_old_acronym_block_with_new_one(
     """
     new_acronym_lines = [f"\\begin{{acronym}}[{longest_shortform_key}]\n"]
     for key, (key_in_file, long_form) in sorted_acronyms:
-        new_line = f"\\acro{{{key}}}{{{key_in_file}}}{{{long_form}}}\n"
+        new_line = f"\\acro{{{key}}}[{key_in_file}]{{{long_form}}}\n"
         new_acronym_lines.append(new_line)
     new_acronym_lines.append("\\end{acronym}\n")
 

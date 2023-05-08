@@ -25,7 +25,7 @@ acrosort <input_file.tex> <output_file.tex>
 For example:
 
 ```bash
-acrosort examples/List_Of_Abbreviations.tex acronyms.tex
+acrosort examples/List_Of_Abbreviations.tex sorted_acronyms.tex
 ```
 
 This will create a new `.tex` file called `sorted_acronyms.tex` with the sorted acronyms, while everything else isn't touched.

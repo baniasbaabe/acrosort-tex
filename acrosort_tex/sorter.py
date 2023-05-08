@@ -4,6 +4,7 @@ import re
 from rich.console import Console
 
 
+# TODO: NamedTuple, If key_2 not available use key_1
 def _load_file(filename: str) -> list:
     """
     Load .tex file with abbreviations and return a list of lines.
@@ -28,12 +29,13 @@ def _find_acronym_block(tex_lines: list) -> tuple:
         tex_lines (list): List of all lines in the .tex file
 
     Returns:
-        tuple: (Index of Start Block of Acronyms, Index of End Block of Acronyms, Longest Shortform Key)
+        tuple: (Index of Start Block of Acronyms, Index of End Block of Acronyms, Longest Shortform Key, Acronyms)
     """
     acronym_block_start = None
     acronym_block_end = None
     longest_shortform_key = None
     longest_shortform_len = 0
+    acronyms = {}
 
     for i, line in enumerate(tex_lines):
         if "\\begin{acronym}" in line:
@@ -45,52 +47,16 @@ def _find_acronym_block(tex_lines: list) -> tuple:
         else:
             match = re.search(r"\\acro\{(.+?)\}\[(.+?)\]\{(.+?)\}", line)
             if match:
-                shortform_len = len(match.group(2))
+                key = match.group(1)
+                key_in_file = match.group(2)
+                long_form = match.group(3)
+                acronyms[key] = (key_in_file, long_form)
+                shortform_len = len(key_in_file)
                 if shortform_len > longest_shortform_len:
-                    longest_shortform_key = match.group(1)
+                    longest_shortform_key = key
                     longest_shortform_len = shortform_len
 
-    return acronym_block_start, acronym_block_end, longest_shortform_key
-
-
-def _extract_acronym_lines(
-    acronym_block_start: int, acronym_block_end: int, tex_lines: list
-) -> list:
-    """
-    Extract only the acronym block.
-
-    Args:
-        acronym_block_start (int): Index of Start Block of Acronyms
-        acronym_block_end (int): Index of End Block of Acronyms
-        tex_lines (list):
-
-    Returns:
-        list: List of all lines in the .tex file
-    """
-    acronym_lines = tex_lines[acronym_block_start : acronym_block_end + 1]
-    acronym_lines = [line.strip() for line in acronym_lines]
-    return acronym_lines
-
-
-def _extract_acronyms(acronym_lines: list) -> dict:
-    """
-    Extract all acronyms from block
-
-    Args:
-        acronym_lines (list): List of all acronym lines.
-
-    Returns:
-        dict: Key-Value Pair of acronyms. Key is the shortform, Value is a tuple of (key_in_file, long_form)
-    """
-    acronyms = {}
-    for line in acronym_lines:
-        match = re.search(r"\\acro\{(.+?)\}\[(.+?)\]\{(.+?)\}", line)
-        if match:
-            key = match.group(1)
-            key_in_file = match.group(2)
-            long_form = match.group(3)
-            acronyms[key] = (key_in_file, long_form)
-    return acronyms
+    return acronym_block_start, acronym_block_end, longest_shortform_key, acronyms
 
 
 def _sort_acronyms(acronyms: dict) -> list:
@@ -128,7 +94,7 @@ def _replace_old_acronym_block_with_new_one(
     """
     new_acronym_lines = [f"\\begin{{acronym}}[{longest_shortform_key}]\n"]
     for key, (key_in_file, long_form) in sorted_acronyms:
-        new_line = f"\\acro{{{key}}}[{key_in_file}]{{{long_form}}}\n"
+        new_line = f"\t\\acro{{{key}}}[{key_in_file}]{{{long_form}}}\n"
         new_acronym_lines.append(new_line)
     new_acronym_lines.append("\\end{acronym}\n")
 
@@ -164,15 +130,12 @@ def main():
 
     tex_lines = _load_file(args.input_file)
 
-    acronym_block_start, acronym_block_end, longest_shortform_key = _find_acronym_block(
-        tex_lines
-    )
-
-    acronym_lines = _extract_acronym_lines(
-        acronym_block_start, acronym_block_end, tex_lines
-    )
-
-    acronyms = _extract_acronyms(acronym_lines)
+    (
+        acronym_block_start,
+        acronym_block_end,
+        longest_shortform_key,
+        acronyms,
+    ) = _find_acronym_block(tex_lines)
 
     acronyms = _sort_acronyms(acronyms)
 
